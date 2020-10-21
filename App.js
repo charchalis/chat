@@ -4,7 +4,7 @@ import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 import { GiftedChat } from 'react-native-gifted-chat';
 import io from "socket.io-client";
 
-const socket = io("http://192.168.1.129:3000");
+export const socket = io("http://192.168.1.129:3000");
 
 var messages = []
 
@@ -13,25 +13,20 @@ socket.on('gimme messages', msgs => {
   console.log("thank you");
 });
 
-socket.on("user message", userMessage => {
-  console.log("Got message from socket: ");
-  console.log("username: ", userMessage.username, "message: ", userMessage.message);
-  messages.push(userMessage);
-});
-
-function jsxifyMessage(userMessage){
+function jsxifyMessage(userMessage, id){
   return (
-    <Text key={userMessage.message}> username: {userMessage.username}, message: {userMessage.message} </Text>
+    <Text key={id}> username: {userMessage.username}, message: {userMessage.message} </Text>
   );
 }
 
 const MessagesJsx = () => {
+  var id = 0;
 
-  return messages.map((message) => {
-    return jsxifyMessage(message);
+  return messages.map((message, id) => {
+    id++;
+    return jsxifyMessage(message, id);
   });
 }
-
 
 const Login = ({navigation}) => {
 
@@ -47,13 +42,41 @@ const Login = ({navigation}) => {
         onPress={async () => {
           socket.emit('user data', {username: username, password: password});
 
-          await new Promise(r => setTimeout(r, 2000));
+          await new Promise(r => setTimeout(r, 200));
 
           navigation.navigate('Home', {username: username});
         }}
       />
     </View>
   );
+}
+
+function HomescreenMessages(){
+
+  console.log("JESUS FUCKING CHRIST WHATAFUCK");
+
+  const [msgsJsx, setMsgsJsx] = useState(MessagesJsx());
+  
+  socket.on("message", (userMessage) => {
+    console.log("Got message from socket: ");
+    console.log("username: ", userMessage.username, "message: ", userMessage.message);
+    messages.push(userMessage);
+    setMsgsJsx([...msgsJsx, jsxifyMessage(userMessage, msgsJsx.length + 1)]);
+    console.log("ping");
+  });
+
+  useEffect(() => {
+    console.log("pong");
+
+    console.log("messages.length: ", messages.length);
+    //console.log("msgsJsx.length: ", msgsJsx.length);
+  });
+
+  return (
+    <View>
+      {msgsJsx}
+    </View>
+  )
 }
 
 
@@ -63,19 +86,10 @@ function HomeScreen({ navigation} ) {
 
   const username =  navigation.state.params.username;
 
-  var msgsJsx = MessagesJsx();
-
-  console.log("messages.length: ", messages.length);
-
-  useEffect(() => {
-    console.log("updatou");
-    msgsJsx = MessagesJsx();
-  });
-
   return (
     <View style = {styles.container}>
       <View>
-        {msgsJsx}
+        {HomescreenMessages()}
       </View>
       <View>
         <TextInput style={styles.textInput} onChangeText={setMessage} type="reset"/>
@@ -83,17 +97,15 @@ function HomeScreen({ navigation} ) {
           title="send"
           onPress={async () => {
 
-            const userMessage = {username: username, message: message}
-
-            socket.emit('user message', userMessage); //sended message to server. it will now receive message and push it to message array
+            socket.emit("message", {username: username, message: message}); //sended message to server. it will now receive message and push it to message array
             
-            await new Promise(r => setTimeout(r, 2000));
+            await new Promise(r => setTimeout(r, 200));
+
           }}
         />
       </View>
     </View>
   )
-
 }
 
 

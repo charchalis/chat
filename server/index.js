@@ -8,17 +8,18 @@ var messages = [{username: "pre mensagens", message: "a pintar"}];
 
 io.on("connection", socket => {
     console.log("a user connected :D");
+
     socket.on("user data", userData => {
       console.log(userData);
       console.log('sending messages');
       socket.emit('gimme messages', messages);
       console.log("there u go");
     });
-    socket.on("user message", userMessage => {
+    socket.on("message", userMessage => {
         console.log(userMessage);
         messages.push(userMessage);
         console.log(messages.length);
-        io.emit("user message", userMessage);
+        io.emit("message", userMessage);
     });
   });
 
