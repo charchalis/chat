@@ -7,6 +7,7 @@ import io from "socket.io-client";
 export const socket = io("http://192.168.1.129:3000");
 
 var messages = []
+var USERNAME = '';
 
 socket.on('gimme messages', msgs => {
   messages = msgs;
@@ -14,8 +15,13 @@ socket.on('gimme messages', msgs => {
 });
 
 function jsxifyMessage(userMessage, id){
+  var backgroundColor = '#1084ff'
+  if(userMessage.username === USERNAME){
+    backgroundColor = '#cdcdcd'
+  }
+
   return (
-    <View key={id} style={styles.balloon} >
+    <View key={id} style={[styles.balloon, {backgroundColor: backgroundColor}]} >
       <Text style={{color: '#ffffff'}}>{userMessage.username}: {userMessage.message} </Text>
     </View>
   );
@@ -46,6 +52,8 @@ const Login = ({navigation}) => {
 
           await new Promise(r => setTimeout(r, 200));
 
+          USERNAME = username;
+
           navigation.navigate('Home', {username: username});
         }}
       />
@@ -71,9 +79,9 @@ function HomescreenMessages(){
   }, []);
 
   return (
-    <View>
+    <ScrollView>
       { msgsJsx }
-    </View>
+    </ScrollView>
   );
 }
 
@@ -83,10 +91,18 @@ function HomeScreenInput(username){
   
 
   return(
-    <View>
-      <TextInput style={styles.textInput} onChangeText={setMessage} value={message} type="reset"/>
+    <View style = {
+      {
+       flex: 1,
+       flexDirection: 'row',
+       justifyContent: 'flex-start',
+       alignItems: 'flex-end',
+      }
+      }>
+      <TextInput style={[styles.textInput, {flex:3}]} onChangeText={setMessage} value={message} type="reset"/>
       <Button
         title="send"
+        styles={{flex:1}}
         onPress={ () => {
 
           socket.emit("message", {username: username, message: message}); //sended message to server. all devices will now receive the message
@@ -143,12 +159,10 @@ const styles = {
     alignItems: 'left'
   },
   balloon: {
-    //maxWidth: scale(250),
     paddingHorizontal: 15,
     paddingTop: 10,
     paddingBottom: 15,
     borderRadius: 20,
-    margin: 4,
-    backgroundColor: '#1084ff'
+    margin: 4
  }
 }
