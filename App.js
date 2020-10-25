@@ -17,7 +17,7 @@ socket.on('gimme messages', msgs => {
 function jsxifyMessage(userMessage, id){
   var backgroundColor = '#1084ff'
   if(userMessage.username === USERNAME){
-    backgroundColor = '#cdcdcd'
+    backgroundColor = '#bebebe'
   }
 
   return (
@@ -75,11 +75,10 @@ function HomescreenMessages(){
     });
 
     console.log("messages.length: ", messages.length);
-    //console.log("msgsJsx.length: ", msgsJsx.length);
   }, []);
 
   return (
-    <ScrollView>
+    <ScrollView >
       { msgsJsx }
     </ScrollView>
   );
@@ -143,7 +142,7 @@ export default function App() {
 const styles = {
   container: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'stretch',
     justifyContent: 'center'
   },
   textInput: {
