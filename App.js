@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import { Text, TextInput, View, Button } from 'react-native';
+import React, {useEffect, useState, Component} from 'react';
+import { Text, TextInput, View, Button, ScrollView } from 'react-native';
 import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 import { GiftedChat } from 'react-native-gifted-chat';
 import io from "socket.io-client";
@@ -15,7 +15,9 @@ socket.on('gimme messages', msgs => {
 
 function jsxifyMessage(userMessage, id){
   return (
-    <Text key={id}> username: {userMessage.username}, message: {userMessage.message} </Text>
+    <View key={id} style={styles.balloon} >
+      <Text style={{color: '#ffffff'}}>{userMessage.username}: {userMessage.message} </Text>
+    </View>
   );
 }
 
@@ -53,57 +55,57 @@ const Login = ({navigation}) => {
 
 function HomescreenMessages(){
 
-  console.log("JESUS FUCKING CHRIST WHATAFUCK");
-
-  const [msgsJsx, setMsgsJsx] = useState(MessagesJsx());
-  
-  socket.on("message", (userMessage) => {
-    console.log("Got message from socket: ");
-    console.log("username: ", userMessage.username, "message: ", userMessage.message);
-    messages.push(userMessage);
-    setMsgsJsx([...msgsJsx, jsxifyMessage(userMessage, msgsJsx.length + 1)]);
-    console.log("ping");
-  });
+  const [msgsJsx, setMsgsJsx] = useState(MessagesJsx()); 
 
   useEffect(() => {
-    console.log("pong");
+
+    socket.on("message", (userMessage) => {
+      console.log("Got message from socket: ");
+      console.log("username: ", userMessage.username, "message: ", userMessage.message);
+      messages.push(userMessage);
+      setMsgsJsx(msgsJsx => [...msgsJsx, jsxifyMessage(userMessage, msgsJsx.length + 1)]);
+    });
 
     console.log("messages.length: ", messages.length);
     //console.log("msgsJsx.length: ", msgsJsx.length);
-  });
+  }, []);
 
   return (
     <View>
-      {msgsJsx}
+      { msgsJsx }
+    </View>
+  );
+}
+
+function HomeScreenInput(username){
+
+  const [message, setMessage] = useState('');
+  
+
+  return(
+    <View>
+      <TextInput style={styles.textInput} onChangeText={setMessage} value={message} type="reset"/>
+      <Button
+        title="send"
+        onPress={ () => {
+
+          socket.emit("message", {username: username, message: message}); //sended message to server. all devices will now receive the message
+          setMessage('');
+
+        }}
+      />
     </View>
   )
 }
 
-
 function HomeScreen({ navigation} ) {
-
-  const [message, setMessage] = useState('');
 
   const username =  navigation.state.params.username;
 
   return (
     <View style = {styles.container}>
-      <View>
         {HomescreenMessages()}
-      </View>
-      <View>
-        <TextInput style={styles.textInput} onChangeText={setMessage} type="reset"/>
-        <Button
-          title="send"
-          onPress={async () => {
-
-            socket.emit("message", {username: username, message: message}); //sended message to server. it will now receive message and push it to message array
-            
-            await new Promise(r => setTimeout(r, 200));
-
-          }}
-        />
-      </View>
+        {HomeScreenInput(username)}
     </View>
   )
 }
@@ -139,5 +141,14 @@ const styles = {
   },
   othersText: {
     alignItems: 'left'
-  }
+  },
+  balloon: {
+    //maxWidth: scale(250),
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    paddingBottom: 15,
+    borderRadius: 20,
+    margin: 4,
+    backgroundColor: '#1084ff'
+ }
 }
