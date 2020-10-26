@@ -6,13 +6,10 @@ import io from "socket.io-client";
 
 export const socket = io("http://192.168.1.129:3000");
 
-var messages = []
+
 var USERNAME = '';
 
-socket.on('gimme messages', msgs => {
-  messages = msgs;
-  console.log("thank you");
-});
+
 
 function jsxifyMessage(userMessage, id){
   var backgroundColor = '#1084ff'
@@ -27,7 +24,7 @@ function jsxifyMessage(userMessage, id){
   );
 }
 
-const MessagesJsx = () => {
+const MessagesJsx = (messages) => {
   var id = 0;
 
   return messages.map((message, id) => {
@@ -40,6 +37,21 @@ const Login = ({navigation}) => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  const [impostor, setImpostor] = useState();
+
+  useEffect(() => {
+
+    socket.on('authenticated', usrname => {
+      USERNAME = usrname;
+      navigation.navigate('Home', {username: USERNAME});
+    });
+
+    socket.on('impostor', () =>{
+      setImpostor(<Text>Wrong username-password combo</Text>)
+    });
+
+  });
   
   return (
     <View style = {styles.container}>
@@ -49,32 +61,34 @@ const Login = ({navigation}) => {
         title="Login"
         onPress={async () => {
           socket.emit('user data', {username: username, password: password});
-
-          await new Promise(r => setTimeout(r, 200));
-
-          USERNAME = username;
-
-          navigation.navigate('Home', {username: username});
         }}
       />
+      {impostor}
     </View>
   );
 }
 
 function HomescreenMessages(){
 
-  const [msgsJsx, setMsgsJsx] = useState(MessagesJsx()); 
+  const [msgsJsx, setMsgsJsx] = useState(); 
 
   useEffect(() => {
+
+    socket.on('pre messages', msgs => {
+      setMsgsJsx(MessagesJsx(msgs));
+    });
+
+    console.log("yo, server, gimme pre messages")
+    socket.emit("gimme pre messages");
+    console.log("thank you");
 
     socket.on("message", (userMessage) => {
       console.log("Got message from socket: ");
       console.log("username: ", userMessage.username, "message: ", userMessage.message);
-      messages.push(userMessage);
       setMsgsJsx(msgsJsx => [...msgsJsx, jsxifyMessage(userMessage, msgsJsx.length + 1)]);
     });
 
-    console.log("messages.length: ", messages.length);
+    //console.log("messages.length: ", messages.length);
   }, []);
 
   return (
