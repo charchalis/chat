@@ -108,7 +108,7 @@ function HomeScreenInput(username){
       {
        flex: 1,
        flexDirection: 'row',
-       justifyContent: 'flex-start',
+       /* justifyContent: 'flex-start', */
        alignItems: 'flex-end',
       }
       }>
