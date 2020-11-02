@@ -1,10 +1,9 @@
 import React, {useEffect, useState, Component} from 'react';
-import { Text, TextInput, View, Button, ScrollView } from 'react-native';
+import { Text, TextInput, View, Button, ScrollView, TouchableHighlight } from 'react-native';
 import { createSwitchNavigator, createAppContainer } from 'react-navigation';
-import { GiftedChat } from 'react-native-gifted-chat';
 import io from "socket.io-client";
 
-export const socket = io("http://192.168.1.129:3000");
+export const socket = io("http://192.168.43.215:3000");
 
 
 var USERNAME = '';
@@ -19,7 +18,12 @@ function jsxifyMessage(userMessage, id){
 
   return (
     <View key={id} style={[styles.balloon, {backgroundColor: backgroundColor}]} >
-      <Text style={{color: '#ffffff'}}>{userMessage.username}: {userMessage.message} </Text>
+      <View>  
+        <Text style={{color: '#ffffff'}}>{userMessage.username}: {userMessage.message} </Text>
+      </View>
+      <View style={{flex: 1, flexDirection: 'row-reverse'}}>  
+        <Text style={{fontSize: 12, color: '#eeeeee'}}> {"👁️ " + userMessage.date} </Text>
+      </View>
     </View>
   );
 }
@@ -84,17 +88,18 @@ function HomescreenMessages(){
 
     socket.on("message", (userMessage) => {
       console.log("Got message from socket: ");
-      console.log("username: ", userMessage.username, "message: ", userMessage.message);
+      console.log("username: ", userMessage.username, "message: ", userMessage.message, "date: ", userMessage.date);
       setMsgsJsx(msgsJsx => [...msgsJsx, jsxifyMessage(userMessage, msgsJsx.length + 1)]);
     });
-
-    //console.log("messages.length: ", messages.length);
   }, []);
 
   return (
-    <ScrollView >
-      { msgsJsx }
-    </ScrollView>
+    <View /* style={{maxHeight: '95%'}} */>
+      <ScrollView ref={ref => scrollView = ref }
+        onContentSizeChange={() => scrollView.scrollToEnd({ animated: true })}>
+        { msgsJsx }
+      </ScrollView>
+    </View>
   );
 }
 
@@ -108,21 +113,31 @@ function HomeScreenInput(username){
       {
        flex: 1,
        flexDirection: 'row',
-       /* justifyContent: 'flex-start', */
        alignItems: 'flex-end',
+       minHeight: 80,
+       margin: 2,
+       color: '#000000',
       }
       }>
-      <TextInput style={[styles.textInput, {flex:3}]} onChangeText={setMessage} value={message} type="reset"/>
-      <Button
-        title="send"
-        styles={{flex:1}}
-        onPress={ () => {
+      <TextInput style={[styles.textInput, {marginBottom: 42}]} onChangeText={setMessage} value={message} type="reset"/>
+      <View style={styles.messageButton}>
+        <Button
+          title="send"
+          onPress={ () => {
 
-          socket.emit("message", {username: username, message: message}); //sended message to server. all devices will now receive the message
-          setMessage('');
+            var d = new Date();
+            var h = d.getHours();
+            var m = d.getMinutes();
+            if(h<10) h = "0" + h;
+            if(m<10) m = "0" + m;
+            var date = h + ":" + m;
 
-        }}
-      />
+            socket.emit("message", {username: username, message: message, date : date}); //sended message to server. all devices will now receive the message
+            setMessage('');
+
+          }}
+        />
+      </View>
     </View>
   )
 }
@@ -160,10 +175,23 @@ const styles = {
     justifyContent: 'center'
   },
   textInput: {
-    height: 40,
-    borderColor: 'gray',
+    height: 37,
+    margin: 2,
+    padding: 10,
+    backgroundColor: 'white',
+    borderColor: 'dodgerblue',
     borderWidth: 1,
-    minWidth: '50%'
+    minWidth: '80%',
+    borderRadius: 20,
+  },
+  messageButton: {
+    flex: 1,
+    alignItems: 'stretch',
+    margin: 2,
+    marginBottom: 42,
+    height: 37,
+    borderRadius: 20,
+    //position: 'absolute',
   },
   myText: {
     alignItems: 'right'
@@ -177,5 +205,5 @@ const styles = {
     paddingBottom: 15,
     borderRadius: 20,
     margin: 4
- }
+  }
 }

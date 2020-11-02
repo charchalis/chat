@@ -5,7 +5,7 @@ const server = require("http").createServer(app);
 const io = require("socket.io").listen(server);
 const port = 3000;
 
-var messages = [ {username: "pre mensagens", message: "a pintar"} ];
+var messages = [ {username: "pre mensagens", message: "a pintar", date: "4:20"} ];
 
 /*---------------------------MONGO DB-------------------------*/
 
