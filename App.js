@@ -10,30 +10,28 @@ var USERNAME = '';
 
 
 
-function jsxifyMessage(userMessage, id){
+function jsxifyMessage(userMessage){
   var backgroundColor = '#1084ff'
   if(userMessage.username === USERNAME){
     backgroundColor = '#bebebe'
   }
 
   return (
-    <View key={id} style={[styles.balloon, {backgroundColor: backgroundColor}]} >
+    <View key={userMessage._id} style={[styles.balloon, {backgroundColor: backgroundColor}]} >
       <View>  
         <Text style={{color: '#ffffff'}}>{userMessage.username}: {userMessage.message} </Text>
       </View>
       <View style={{flex: 1, flexDirection: 'row-reverse'}}>  
-        <Text style={{fontSize: 12, color: '#eeeeee'}}> {"👁️ " + userMessage.date} </Text>
+        <Text style={{fontSize: 12, color: '#eeeeee'}}> {userMessage.date} </Text>
       </View>
     </View>
   );
 }
 
 const MessagesJsx = (messages) => {
-  var id = 0;
-
-  return messages.map((message, id) => {
-    id++;
-    return jsxifyMessage(message, id);
+  console.log(messages);
+  return messages.map((message) => {
+    return jsxifyMessage(message);
   });
 }
 
