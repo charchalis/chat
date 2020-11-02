@@ -3,7 +3,7 @@ import { Text, TextInput, View, Button, ScrollView, TouchableHighlight } from 'r
 import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 import io from "socket.io-client";
 
-export const socket = io("http://192.168.43.215:3000");
+export const socket = io("http://192.168.1.129:3000");
 
 
 var USERNAME = '';
@@ -94,7 +94,7 @@ function HomescreenMessages(){
   }, []);
 
   return (
-    <View /* style={{maxHeight: '95%'}} */>
+    <View style={{marginTop: 40, alignSelf: 'stretch'}} >
       <ScrollView ref={ref => scrollView = ref }
         onContentSizeChange={() => scrollView.scrollToEnd({ animated: true })}>
         { msgsJsx }
@@ -114,12 +114,11 @@ function HomeScreenInput(username){
        flex: 1,
        flexDirection: 'row',
        alignItems: 'flex-end',
-       minHeight: 80,
+       minHeight: 40,
        margin: 2,
-       color: '#000000',
       }
       }>
-      <TextInput style={[styles.textInput, {marginBottom: 42}]} onChangeText={setMessage} value={message} type="reset"/>
+      <TextInput style={[styles.textInput, {width: '80%'}]} onChangeText={setMessage} value={message} type="reset"/>
       <View style={styles.messageButton}>
         <Button
           title="send"
@@ -147,8 +146,10 @@ function HomeScreen({ navigation} ) {
   const username =  navigation.state.params.username;
 
   return (
-    <View style = {styles.container}>
+    <View style = {[styles.container, {flexDirection: "column", justifyContent: "flex-end"}]}>
+      <View style = {{flexDirection: 'column', justifyContent: 'center', alignItems: 'stretch'}}>
         {HomescreenMessages()}
+      </View>
         {HomeScreenInput(username)}
     </View>
   )
@@ -181,17 +182,14 @@ const styles = {
     backgroundColor: 'white',
     borderColor: 'dodgerblue',
     borderWidth: 1,
-    minWidth: '80%',
     borderRadius: 20,
   },
   messageButton: {
     flex: 1,
     alignItems: 'stretch',
     margin: 2,
-    marginBottom: 42,
     height: 37,
     borderRadius: 20,
-    //position: 'absolute',
   },
   myText: {
     alignItems: 'right'
@@ -202,7 +200,7 @@ const styles = {
   balloon: {
     paddingHorizontal: 15,
     paddingTop: 10,
-    paddingBottom: 15,
+    paddingBottom: 5,
     borderRadius: 20,
     margin: 4
   }
