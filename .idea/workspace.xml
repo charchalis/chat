@@ -23,6 +23,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Projects/fsac" />
     <property name="settings.editor.selected.configurable" value="AndroidSdkUpdater" />
   </component>
   <component name="SvnConfiguration">
@@ -39,6 +40,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
+    <state x="466" y="122" width="424" height="520" key="FileChooserDialogImpl" timestamp="1604352601597">
+      <screen x="0" y="27" width="1366" height="741" />
+    </state>
+    <state x="466" y="122" width="424" height="520" key="FileChooserDialogImpl/0.27.1366.741@0.27.1366.741" timestamp="1604352601597" />
     <state x="172" y="27" width="1022" height="737" key="SettingsEditor" timestamp="1604286517004">
       <screen x="0" y="27" width="1366" height="741" />
     </state>

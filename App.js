@@ -3,12 +3,10 @@ import { Text, TextInput, View, Button, ScrollView, TouchableHighlight } from 'r
 import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 import io from "socket.io-client";
 
-export const socket = io("http://192.168.1.129:3000");
+export const socket = io("http://94.60.179.181:3000");
 
 
 var USERNAME = '';
-
-
 
 function jsxifyMessage(userMessage){
   var backgroundColor = '#1084ff'
@@ -128,6 +126,10 @@ function HomeScreenInput(username){
             if(h<10) h = "0" + h;
             if(m<10) m = "0" + m;
             var date = h + ":" + m;
+
+            if(message === '') setMessage('FSAC');
+
+            console.log("coño maricon: ", message);
 
             socket.emit("message", {username: username, message: message, date : date}); //sended message to server. all devices will now receive the message
             setMessage('');
