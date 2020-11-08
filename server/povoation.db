@@ -1,0 +1,47 @@
+INSERT INTO User VALUES (1, "Polaco", "polaco");
+INSERT INTO User VALUES (2, "Napoles", "cabana");
+INSERT INTO User VALUES (3, "Carolina", "papaio");
+INSERT INTO User VALUES (4, "Tomas", "caracol");
+INSERT INTO User VALUES (5, "Oscar", "cardoso");
+
+
+INSERT INTO Conversation(id, name) VALUES (1, "cuoco");
+INSERT INTO Conversation(id, name) VALUES (2, "polaco e tomas");
+
+
+INSERT INTO ConversationUser VALUES (1,1);
+INSERT INTO ConversationUser VALUES (1,2);
+INSERT INTO ConversationUser VALUES (1,3);
+INSERT INTO ConversationUser VALUES (1,4);
+INSERT INTO ConversationUser VALUES (1,5);
+
+INSERT INTO ConversationUser VALUES (2,1);
+INSERT INTO ConversationUser VALUES (2,4);
+
+
+INSERT INTO Message VALUES
+        (1, 2, 1, "boas", "4-20-20"),
+        (2, 2, 4, "boas", "4-20-20"),
+        (3, 2, 1, "mequie, fsac?", "4-20-20"),
+        (4, 2, 4, "gajo", "4-20-20"),
+        
+        (5, 1, 3, "pierogis", "4-20-20");
+
+UPDATE Conversation SET lastMessage = "gajo" where name = "polaco e tomas";
+UPDATE Conversation SET lastMessage = "pierogis" where name = "cuoco"; 
+
+
+--mensagens da conversa do polaco e tomas
+SELECT "mensagens da conversa do polaco e tomas:";
+SELECT * FROM Message WHERE (conversationId = 2);
+
+--users da conversa do cuoco
+SELECT "users da conversa do cuoco:";
+SELECT  (User.username) FROM User, ConversationUser
+        WHERE (ConversationUser.conversationId = 1 AND ConversationUser.userId = User.id);
+
+--select message.text from message
+  --      where message.id = (select MAX(message.id) from message, conversation
+    --                            where message.conversationId = conversation.id and
+      --                                  conversation.name = ?
+

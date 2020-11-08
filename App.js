@@ -1,5 +1,5 @@
 import React, {useEffect, useState, Component} from 'react';
-import { Text, TextInput, View, Button, ScrollView, TouchableHighlight } from 'react-native';
+import { Text, TextInput, View, Button, ScrollView, TouchableHighlight, Pressable } from 'react-native';
 import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 import io from "socket.io-client";
 
@@ -9,7 +9,6 @@ export const socket = io("http://192.168.1.129:3000");
 var USERNAME = '';
 
 
-
 function jsxifyMessage(userMessage){
   var backgroundColor = '#1084ff'
   if(userMessage.username === USERNAME){
@@ -17,9 +16,9 @@ function jsxifyMessage(userMessage){
   }
 
   return (
-    <View key={userMessage._id} style={[styles.balloon, {backgroundColor: backgroundColor}]} >
+    <View key={userMessage.id} style={[styles.balloon, {backgroundColor: backgroundColor}]} >
       <View>  
-        <Text style={{color: '#ffffff'}}>{userMessage.username}: {userMessage.message} </Text>
+        <Text style={{color: '#ffffff'}}>{userMessage.username}: {userMessage.text} </Text>
       </View>
       <View style={{flex: 1, flexDirection: 'row-reverse'}}>  
         <Text style={{fontSize: 12, color: '#eeeeee'}}> {userMessage.date} </Text>
@@ -46,7 +45,7 @@ const Login = ({navigation}) => {
 
     socket.on('authenticated', usrname => {
       USERNAME = usrname;
-      navigation.navigate('Home', {username: USERNAME});
+      navigation.navigate('Conversations');
     });
 
     socket.on('impostor', () =>{
@@ -70,7 +69,7 @@ const Login = ({navigation}) => {
   );
 }
 
-function HomescreenMessages(){
+function HomescreenMessages(conversationId){
 
   const [msgsJsx, setMsgsJsx] = useState(); 
 
@@ -81,7 +80,7 @@ function HomescreenMessages(){
     });
 
     console.log("yo, server, gimme pre messages")
-    socket.emit("gimme pre messages");
+    socket.emit("gimme pre messages", conversationId);
     console.log("thank you");
 
     socket.on("message", (userMessage) => {
@@ -101,7 +100,7 @@ function HomescreenMessages(){
   );
 }
 
-function HomeScreenInput(username){
+function HomeScreenInput(){
 
   const [message, setMessage] = useState('');
   
@@ -129,7 +128,7 @@ function HomeScreenInput(username){
             if(m<10) m = "0" + m;
             var date = h + ":" + m;
 
-            socket.emit("message", {username: username, message: message, date : date}); //sended message to server. all devices will now receive the message
+            socket.emit("message", {username: USERNAME, message: message, date : date}); //sended message to server. all devices will now receive the message
             setMessage('');
 
           }}
@@ -139,18 +138,61 @@ function HomeScreenInput(username){
   )
 }
 
-function HomeScreen({ navigation} ) {
+function HomeScreen({navigation}) {
 
-  const username =  navigation.state.params.username;
+  const conversationId = navigation.state.params.id;
 
   return (
     <View style = {[styles.container, {flexDirection: "column", justifyContent: "flex-end"}]}>
       <View style = {{flexDirection: 'column', justifyContent: 'center', alignItems: 'stretch'}}>
-        {HomescreenMessages()}
+        {HomescreenMessages(conversationId)}
       </View>
-        {HomeScreenInput(username)}
+        {HomeScreenInput()}
     </View>
   )
+}
+
+const jsxifyConversation = (conversation) => {
+
+  return(
+    <View key={conversation.id}  style = {{borderWidth: 1, borderColor: '#000000'}}>
+      <Pressable onPress={() => {socket.emit("get me into conversation", conversation.id)}}>
+        <Text>{conversation.name}</Text>
+        <Text>{conversation.lastMessage}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const ConversationsJsx = (conversations) => {
+  return conversations.map((conversation) => {
+    return jsxifyConversation(conversation);
+  });
+}
+
+const Conversations = ({navigation}) => {
+
+  const [conversations, setConversations] = useState();
+
+  useEffect(() => {
+
+    socket.on("conversations", conversations => {
+      setConversations(ConversationsJsx(conversations));
+    });
+
+    socket.on('conversation pass', (id) => { //THIS IS FUCKING DISGUSTING AND YOU SHOULD BE ASHAMED OF YOURSELF
+      console.log("id: ", id);
+      navigation.navigate('Home', {id: id});
+    })
+
+    socket.emit("gimme conversations", USERNAME);
+  }, []);
+  
+  return(
+    <ScrollView>
+      {conversations}
+    </ScrollView>
+  );
 }
 
 
@@ -158,6 +200,7 @@ const Navigator = createAppContainer(
   createSwitchNavigator({
     Login: Login,
     Home: HomeScreen,
+    Conversations: Conversations,
   })
 );
 

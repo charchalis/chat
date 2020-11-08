@@ -1,0 +1,35 @@
+--PRAGMA encoding = "UTF-8";
+
+DROP TABLE IF EXISTS User;
+DROP TABLE IF EXISTS Conversation;
+DROP TABLE IF EXISTS ConversationUser;
+DROP TABLE IF EXISTS Message;
+
+CREATE TABLE User (
+        id INTEGER NOT NULL,
+        username TEXT NOT NULL,
+        password TEXT NOT NULL,
+        CONSTRAINT users_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE Conversation (
+        id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        lastMessage Text REFERENCES Message(text),
+        CONSTRAINT conversation_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE ConversationUser (
+        conversationId REFERENCES Conversation,
+        userId REFERENCES User,
+        CONSTRAINT conversation_user_pk PRIMARY KEY (conversationId, userId)
+);
+
+CREATE TABLE Message (
+        id INTEGER NOT NULL,
+        conversationId INTEGER REFERENCES Conversation,
+        userId INTEGER REFENRENCES User,
+        text TEXT NOT NULL,
+        date TEXT NOT NULL,
+        CONSTRAINT message_pk PRIMARY KEY (id)
+);
