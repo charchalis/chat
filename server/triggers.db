@@ -1,0 +1,12 @@
+DROP TRIGGER IF EXISTS update_conversation_last_message;
+
+CREATE TRIGGER update_conversation_last_message
+AFTER INSERT ON Message
+FOR EACH ROW
+BEGIN
+
+--UPDATE Conversation SET lastMessage = (SELECT text from Message WHERE Message.id = (SELECT MAX(Message.id) FROM Message, Conversation WHERE Message.conversationId = Conversation.id));
+
+UPDATE Conversation SET lastMessage = (select message.text from message where message.id = (select max(id) from message)) where id = (select conversation.id from conversation, message where( message.id = (select max(id) from message) and message.conversationId = conversation.id));
+
+END;
