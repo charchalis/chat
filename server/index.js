@@ -41,9 +41,11 @@ let db = new sqlite3.Database('test.db', sqlite3.OPEN_READWRITE, (err) => {
 /*---------------------------SOCKET-------------------------*/
 
 io.on("connection", socket => {
-    
+  
   console.log("a user connected :D");
 
+  var USER = {};
+  var CONVERSATION_USERS =[];
     
   /*----------LOGIN----------*/
   socket.on("user data", userData => {
@@ -56,32 +58,67 @@ io.on("connection", socket => {
         }
         else{
           console.log("valid username-password combo");
-          console.log(rows[0]);
-          socket.emit("authenticated", userData.username)
+          
+          USER = {id: rows[0].id, username: rows[0].username}
+          
+          console.log("USER: ", USER);
+          
+          socket.emit("authenticated", USER.id);
         }
       });
   });
+
+  socket.on("gimme user id", () => {
+    socket.emit("user", USER.id);
+  })
   
   /*----------GET CONVERSATIONS----------*/
-  socket.on("gimme conversations", (username) => {
+  socket.on("gimme conversations", () => {
     console.log("sending conversations...")
 
-    const querry = 'select conversation.* from conversation, conversationuser, user where(conversationuser.userId = user.id and conversationuser.conversationId = conversation.id and user.username = ?)';
+    const querry = 'select conversation.* from conversation, conversationuser ' +
+                  'where(conversationuser.userId = ? ' + 
+                  'and conversationuser.conversationId = conversation.id)';
     
-    db.all(querry, username, (err, conversations) => {
-      console.log("converesations: ", conversations)
+    console.log("user.id: ", USER.id);
+
+    db.all(querry, USER.id, (err, conversations) => {
+      console.log("conversations: ", conversations)
       socket.emit('conversations', conversations);
     });
   });
 
-  socket.on('get me into conversation', (id) => { //DDDDDDDIIIIIISSSSSGGGGGUUUUUUSSSSSSTTTTTAAAANNNNGGGG
-    socket.emit('conversation pass', id);
+  socket.on('get me into conversation', (conversationId) => { //DDDDDDDIIIIIISSSSSGGGGGUUUUUUSSSSSSTTTTTAAAANNNNGGGG
+    console.log("conversationID: ", conversationId);
+    socket.emit('conversation pass', conversationId);
   })
+
+  socket.on('gimme users info', (conversationId) => {
+
+    var querry = 'select user.id, user.username from user, conversationUser ' +
+                  'where conversationUser.conversationId = ? and conversationUser.userId = user.id';
+
+    db.all(querry, conversationId, (err, usersDb) => {
+      
+      var users = [];
+
+      console.log("usersDB: ", usersDb);
+      
+      usersDb.forEach((user) => {
+        console.log("user: ", user);
+        users.push(user);
+      });
+
+      console.log("users: ", users);
+
+      socket.emit("users info", users);
+    });
+  });
 
   /*----------GET PRE MESSAGES----------*/
   socket.on("gimme pre messages", (conversationId) =>{
-    db.all('select * from message where conversationId = ?', conversationId, (err, messages) => {
-      console.log(messages);
+    console.log("conversationID: ", conversationId);
+    db.all('select id, userId, text, date from message where conversationId = ?', conversationId, (err, messages) => {
       console.log("sending pre messages");
       socket.emit("pre messages", messages);
     })
@@ -92,7 +129,27 @@ io.on("connection", socket => {
   socket.on("message", userMessage => {
     
     console.log(userMessage);
-    //io.emit("message", userMessage);
+
+    db.all('select MAX(id) from message', (err, topMessageId) => {
+
+      userMessageId = topMessageId[0]['MAX(id)'] + 1;
+
+      console.log(userMessageId);
+
+      userMessage.id = userMessageId;
+
+      db.run(`INSERT INTO Message VALUES(?, ?, ?, ?, ?)`,
+            userMessage.id, userMessage.conversationId, userMessage.userId, userMessage.text, userMessage.date, function(err) {
+      if (err) {
+        console.log("ERROR");
+        console.log(err.message);
+      }
+      else{
+        console.log('message inserted into database');
+        io.emit("message", userMessage);
+      }
+    });
+    });
   });
 });
 
