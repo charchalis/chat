@@ -14,10 +14,10 @@ const jsxifyConversation = (conversation) => {
 
     return(
         <View key={conversation.id}
-            style = {{borderBottomWidth: 4, borderColor: '#ffffff'}}>
+            style = {{borderBottomWidth: 4, borderColor: '#555555'}}>
             <Pressable onPress={() => {socket.emit("get me into conversation", conversation.id)}}>
                 <View style={{padding: 7, paddingLeft: 10}}>
-                    <Text style={{fontWeight: "bold", fontSize: 15, color: '#ffffff', paddingBottom: 5}}>
+                    <Text style={{fontWeight: "bold", fontSize: 15, color: '#555555', paddingBottom: 5}}>
                         {conversation.name}
                     </Text>
                     <Text style={{color: '#ffffff', paddingBottom: 4}}>
@@ -52,7 +52,7 @@ const Conversations = ({navigation}) => {
     }, []);
     
     return(
-    <View style={{flex: 1, backgroundColor: "#bebeff", borderColor: "#ffffff"}}>
+    <View style={{flex: 1, backgroundColor: "#9c9c9c", borderColor: "#ffffff"}}>
       <ScrollView>
           <View style = {{borderTopWidth: 3, borderTopColor: "#ffffff"}}>
         {conversations}

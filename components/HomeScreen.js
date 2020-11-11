@@ -98,13 +98,14 @@ function HomeScreenInput(){
        flexDirection: 'row',
        alignItems: 'flex-end',
        minHeight: 40,
+       maxHeight: 40,
        margin: 2,
+       flexShrink: 1
       }
       }>
-      <TextInput style={[styles.textInput, {width: '80%'}]} onChangeText={setMessage} value={message} type="reset"/>
-      <View style={styles.messageButton}>
-        <Button
-          title="send"
+      <TextInput style={[styles.textInput, {flex: 1}]} onChangeText={setMessage} value={message} type="reset"/>
+      
+        <Pressable
           onPress={ () => {
 
             var d = new Date();
@@ -116,10 +117,11 @@ function HomeScreenInput(){
 
             socket.emit("message", {conversationId: CONVERSATION_ID, userId: USER_ID, text: message, date : date}); //sended message to server. all devices will now receive the message
             setMessage('');
-
-          }}
-        />
-      </View>
+          }}>
+          <View style={styles.messageButton}>
+            <Text></Text>
+          </View>
+        </Pressable>
     </View>
   )
 }
@@ -160,23 +162,26 @@ const styles = {
       margin: 2,
       padding: 10,
       backgroundColor: 'white',
-      borderColor: 'dodgerblue',
-      borderWidth: 1,
-      borderRadius: 20,
+      borderColor: '#9c9c9c',
+      borderWidth: 2,
+      borderRadius: 15,
     },
     messageButton: {
       flex: 1,
-      alignItems: 'stretch',
+      alignSelf: 'stretch',
       margin: 2,
-      height: 37,
+      marginRight: 0,
+      height: 10,
       borderRadius: 20,
+      backgroundColor: "#9c9c9c",
+      minWidth: "15%"
     },
     balloon: {
-      paddingHorizontal: 15,
+      paddingHorizontal: 10,
       paddingTop: 6,
       paddingBottom: 5,
-      borderRadius: 20,
-      margin: 4
+      borderRadius: 15,
+      margin: 1.5
     },
     myText: {
       backgroundColor: '#bebebe',
