@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef, Component} from 'react';
-import { Text, TextInput, View, Button, ScrollView, TouchableHighlight, Pressable } from 'react-native';
+import { Text, TextInput, View, Button, ScrollView, TouchableHighlight, Pressable, ImageBackground } from 'react-native';
 import socket from "../initializeSocket";
 
 var CONVERSATION_ID;
@@ -137,14 +137,21 @@ function HomeScreen({navigation}) {
     });
     
     socket.emit("gimme user id");
+
+    return () => {
+      socket.off("user");
+      socket.off("usersInfo");
+      socket.off("pre messages");
+      socket.off("message");
+    }
   }, []);
 
   return (
     <View style = {[styles.container, {flexDirection: "column", justifyContent: "flex-end"}]}>
-      <View style = {{/*flexDirection: 'column', justifyContent: 'center' ,  alignItems: 'stretch' */}}>
+      {/* <ImageBackground source={{uri: "https://i.pinimg.com/736x/36/dc/05/36dc059bae1fe527968efb51521ac514.jpg"}} style={{flex: 1,  justifyContent: "flex-end"}}> */}
         {HomescreenMessages()}
-      </View>
         {HomeScreenInput()}
+      {/* </ImageBackground> */}
     </View>
   )
 }
