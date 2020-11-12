@@ -83,7 +83,6 @@ io.on("connection", socket => {
     console.log("user.id: ", USER.id);
 
     db.all(querry, USER.id, (err, conversations) => {
-      console.log("conversations: ", conversations)
       socket.emit('conversations', conversations);
     });
   });
@@ -101,11 +100,8 @@ io.on("connection", socket => {
     db.all(querry, conversationId, (err, usersDb) => {
       
       var users = [];
-
-      console.log("usersDB: ", usersDb);
       
       usersDb.forEach((user) => {
-        console.log("user: ", user);
         users.push(user);
       });
 
@@ -117,7 +113,6 @@ io.on("connection", socket => {
 
   /*----------GET PRE MESSAGES----------*/
   socket.on("gimme pre messages", (conversationId) =>{
-    console.log("conversationID: ", conversationId);
     db.all('select id, userId, text, date from message where conversationId = ?', conversationId, (err, messages) => {
       console.log("sending pre messages");
       socket.emit("pre messages", messages);
@@ -134,7 +129,7 @@ io.on("connection", socket => {
 
       userMessageId = topMessageId[0]['MAX(id)'] + 1;
 
-      console.log(userMessageId);
+      console.log("message #",userMessageId);
 
       userMessage.id = userMessageId;
 

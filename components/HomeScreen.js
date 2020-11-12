@@ -1,6 +1,8 @@
-import React, {useEffect, useState, useRef, Component} from 'react';
-import { Text, TextInput, View, Button, ScrollView, TouchableHighlight, Pressable, ImageBackground } from 'react-native';
+import React, {useEffect, useState, useRef, useLayoutEffect} from 'react';
+import { Text, TextInput, View, ScrollView, Pressable } from 'react-native';
 import socket from "../initializeSocket";
+import styles from "../aesthetic/styles";
+import colorPallet from "../aesthetic/colorPallet";
 
 var CONVERSATION_ID;
 
@@ -9,8 +11,6 @@ var USER_ID;
 var NAMES_DICT = {};
 
 function jsxifyMessage(userMessage){
-
-  console.log("userMessage.id: ", userMessage.id);
   
   var messageCss = styles.othersText;
   var othersName = <Text style={{fontWeight: "bold", fontSize: 14, color: '#555555'}}>{NAMES_DICT[userMessage.userId]}</Text>;
@@ -37,7 +37,6 @@ function jsxifyMessage(userMessage){
 }
 
 const MessagesJsx = (messages) => {
-  console.log(messages);
   return messages.map((message) => {
     return jsxifyMessage(message);
   });
@@ -59,20 +58,18 @@ function HomescreenMessages(){
 
     socket.emit("gimme users info", CONVERSATION_ID);
 
-    console.log("conversationId: ", CONVERSATION_ID);
+    console.log("\nconversationId: ", CONVERSATION_ID);
 
     socket.on('pre messages', msgs => {
-      console.log("PRE MESSAGES: ", msgs);
       setMsgsJsx(MessagesJsx(msgs));
     });
 
-    console.log("yo, server, gimme pre messages")
+    console.log("\nyo, server, gimme pre messages")
     socket.emit("gimme pre messages", CONVERSATION_ID);
-    console.log("thank you");
 
     socket.on("message", (userMessage) => {
-      console.log("Got message from socket: ");
-      console.log("id: ", userMessage.id, "conversation id: ", CONVERSATION_ID, "userId: ", userMessage.userId, "text: ", userMessage.text, "date: ", userMessage.date);
+      console.log("\nGot message from socket:");
+      console.log("id: ", userMessage.id, "\nconversation id: ", CONVERSATION_ID, "\nuserId: ", userMessage.userId, "\ntext: ", userMessage.text, "\ndate: ", userMessage.date);
       setMsgsJsx(msgsJsx => [...msgsJsx, jsxifyMessage(userMessage)]);
     });
   }, []);
@@ -91,21 +88,24 @@ function HomeScreenInput(){
 
   const [message, setMessage] = useState('');
   
+  var buttonColor = "#555555";
+
   return(
     <View style = {
       {
        flex: 1,
        flexDirection: 'row',
        alignItems: 'flex-end',
-       minHeight: 40,
-       maxHeight: 40,
-       margin: 2,
-       flexShrink: 1
+       minHeight: 42,
+       maxHeight: 42,
+       flexShrink: 1,
+       paddingRight: 5,
+       backgroundColor: colorPallet.color1
       }
       }>
-      <TextInput style={[styles.textInput, {flex: 1}]} onChangeText={setMessage} value={message} type="reset"/>
+      <TextInput style={[styles.textInput, {flex: 1, backgroundColor: colorPallet.color4, color: "#ffffff"}]} onChangeText={setMessage} value={message} type="reset"/>
       
-        <Pressable
+        <Pressable style={({pressed}) => [styles.messageButton, {backgroundColor: pressed ? "#333333": "#555555", margin: 4}]}
           onPress={ () => {
 
             var d = new Date();
@@ -118,7 +118,7 @@ function HomeScreenInput(){
             socket.emit("message", {conversationId: CONVERSATION_ID, userId: USER_ID, text: message, date : date}); //sended message to server. all devices will now receive the message
             setMessage('');
           }}>
-          <View style={styles.messageButton}>
+          <View style={{}}>
             <Text></Text>
           </View>
         </Pressable>
@@ -128,12 +128,11 @@ function HomeScreenInput(){
 
 function HomeScreen({navigation}) {
   CONVERSATION_ID = navigation.state.params.conversationId;
-  console.log("FDSDGAFDAGFDS: ", navigation.state);
+  //console.log("NAVIGATION STATE: ", navigation);
 
   useEffect(() => {
     socket.on("user", (userId) => {
       USER_ID = userId;
-      console.log("hello?");
     });
     
     socket.emit("gimme user id");
@@ -147,7 +146,7 @@ function HomeScreen({navigation}) {
   }, []);
 
   return (
-    <View style = {[styles.container, {flexDirection: "column", justifyContent: "flex-end"}]}>
+    <View style = {[styles.container, {flexDirection: "column", justifyContent: "flex-end", backgroundColor: colorPallet.color3}]}>
       {/* <ImageBackground source={{uri: "https://i.pinimg.com/736x/36/dc/05/36dc059bae1fe527968efb51521ac514.jpg"}} style={{flex: 1,  justifyContent: "flex-end"}}> */}
         {HomescreenMessages()}
         {HomeScreenInput()}
@@ -156,50 +155,5 @@ function HomeScreen({navigation}) {
   )
 }
 
-//--------------------------------------------------styles---------------------------------------------//
-
-const styles = {
-    container: {
-      flex: 1,
-      alignItems: 'stretch',
-      justifyContent: 'center'
-    },
-    textInput: {
-      height: 37,
-      margin: 2,
-      padding: 10,
-      backgroundColor: 'white',
-      borderColor: '#9c9c9c',
-      borderWidth: 2,
-      borderRadius: 15,
-    },
-    messageButton: {
-      flex: 1,
-      alignSelf: 'stretch',
-      margin: 2,
-      marginRight: 0,
-      height: 10,
-      borderRadius: 20,
-      backgroundColor: "#9c9c9c",
-      minWidth: "15%"
-    },
-    balloon: {
-      paddingHorizontal: 10,
-      paddingTop: 6,
-      paddingBottom: 5,
-      borderRadius: 15,
-      margin: 1.5
-    },
-    myText: {
-      backgroundColor: '#bebebe',
-      alignSelf:'flex-end',
-      marginLeft: "15%"
-    },
-    othersText: {
-      backgroundColor: '#9c9c9c',
-      alignSelf:'flex-start',
-      marginRight: "15%"
-    },
-  }
 
 export default HomeScreen;
