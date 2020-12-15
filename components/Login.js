@@ -1,5 +1,6 @@
 import React, {useEffect, useState, Component} from 'react';
 import { Text, TextInput, View, Button, ScrollView, TouchableHighlight, Pressable } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import socket from "../initializeSocket";
 
 const Login = ({navigation}) => {
@@ -11,7 +12,26 @@ const Login = ({navigation}) => {
 
   useEffect(() => {
 
+    //cookies
+
+    //AsyncStorage.clear();
+
+    AsyncStorage.getItem('userCookies', (err, userIdJson) => {
+      console.log("cookies: ", userIdJson);
+      userId = parseInt(userIdJson);
+      if(userId != null){
+        socket.emit("cookiePass", userId);
+      }
+    });
+
     socket.on('authenticated', (userId) => {
+
+      //saving cookies
+      AsyncStorage.setItem(
+        'userCookies',
+        JSON.stringify(userId)
+      );
+
       navigation.navigate('Conversations', userId);
     });
 

@@ -6,3 +6,6 @@ FOR EACH ROW
 BEGIN
     UPDATE Conversation SET lastMessage = (select message.text from message where message.id = (select max(id) from message)) where id = (select conversation.id from conversation, message where( message.id = (select max(id) from message) and message.conversationId = conversation.id));
 END;
+
+--CREATE TRIGGER create_conversationUser_afer_insert_conversation
+--AFTER INSERT ON 

@@ -3,7 +3,7 @@ const express = require("express");
 const { DEFAULT_MAX_VERSION } = require("tls");
 const app = express();
 const server = require("http").createServer(app);
-const io = require("socket.io").listen(server);
+const io = require("socket.io")(server);
 const port = 3000;
 
 /*---------------------------MONGO DB-------------------------*/
@@ -66,6 +66,14 @@ io.on("connection", socket => {
           socket.emit("authenticated", USER.id);
         }
       });
+  });
+
+  socket.on('cookiePass', (id) => {
+    console.log("aaah, cookie pass. Right this way suh.");
+
+    USER = {id: id};
+
+    socket.emit('authenticated', id);
   });
 
   socket.on("gimme user id", () => {

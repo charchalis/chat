@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "chat",
+    "name": "fsac",
     "slug": "chat",
-    "version": "1.0.0",
+    "version": "0.69.420",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/fsac.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -17,7 +17,13 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "against.billy.the.gateys.society",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "against.billy.the.gateys.society",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
