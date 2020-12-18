@@ -1,7 +1,8 @@
 import React, {useEffect, useState, Component} from 'react';
-import { Text, TextInput, View, Button, ScrollView, TouchableHighlight, Pressable } from 'react-native';
+import { Text, TextInput, View, Button, ScrollView, TouchableHighlight, Pressable, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import socket from "../initializeSocket";
+import colorPallet from '../aesthetic/colorPallet';
 
 const Login = ({navigation}) => {
 
@@ -10,29 +11,36 @@ const Login = ({navigation}) => {
 
   const [impostor, setImpostor] = useState();
 
+  const [waiting, setWaiting] = useState(true);
+
   useEffect(() => {
 
     //cookies
 
     //AsyncStorage.clear();
 
-    AsyncStorage.getItem('userCookies', (err, userIdJson) => {
-      console.log("cookies: ", userIdJson);
-      userId = parseInt(userIdJson);
-      if(userId != null){
-        socket.emit("cookiePass", userId);
+    AsyncStorage.getItem('userCookies', (err, userJson) => {
+      console.log("cookies: ", userJson);
+      const user = JSON.parse(userJson);
+      if(userJson){
+        //navigation.navigate('Conversations', user.id);
+        socket.emit("cookiePass", user);
+      }else{
+        setWaiting(false)
       }
     });
 
-    socket.on('authenticated', (userId) => {
+    socket.on('authenticated', (user) => {
+
+      console.log("fjdlksajfldçsajf: ", user);
 
       //saving cookies
       AsyncStorage.setItem(
         'userCookies',
-        JSON.stringify(userId)
+        JSON.stringify(user)
       );
 
-      navigation.navigate('Conversations', userId);
+      navigation.navigate('Conversations', user.id);
     });
 
     socket.on('impostor', () =>{
@@ -41,8 +49,12 @@ const Login = ({navigation}) => {
 
   }, []);
   
-  return (
-    <View style = {styles.container}>
+  return waiting ? (
+    <View style = {styles.container, {flexDirection: "row", flex: 1, justifyContent: "space-around", backgroundColor: colorPallet.color3}}>
+      <ActivityIndicator size="large" color={colorPallet.color1}/>
+    </View>
+    ):(
+    <View style = {[styles.container, {backgroundColor: colorPallet.color3}]}>
       <TextInput style={styles.textInput} onChangeText={setUsername}/>
       <TextInput style={styles.textInput} secureTextEntry={true} onChangeText={setPassword}/>
       <Button
@@ -59,15 +71,15 @@ const Login = ({navigation}) => {
 const styles = {
   container: {
     flex: 1,
-    alignItems: 'stretch',
+    //alignItems: 'stretch',
     justifyContent: 'center'
   },
   textInput: {
     height: 37,
     margin: 2,
     padding: 10,
-    backgroundColor: 'white',
-    borderColor: 'dodgerblue',
+    backgroundColor: colorPallet.color1,
+    borderColor: colorPallet.color2,
     borderWidth: 1,
     borderRadius: 20,
   }

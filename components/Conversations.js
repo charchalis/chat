@@ -39,8 +39,6 @@ const ConversationsJsx = (conversations) => {
 }
   
 const Conversations = ({navigation}) => {
-  
-    console.log("NAVIGATION STATE:\n", navigation.state.params);
 
     const [conversations, setConversations] = useState();
   

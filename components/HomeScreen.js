@@ -105,23 +105,23 @@ function HomeScreenInput(){
       }>
       <TextInput style={[styles.textInput, {flex: 1, backgroundColor: colorPallet.color4, color: "#ffffff"}]} onChangeText={setMessage} value={message} type="reset"/>
       
-        <Pressable style={({pressed}) => [styles.messageButton, {backgroundColor: pressed ? "#333333": "#555555", margin: 4}]}
-          onPress={ () => {
+      <Pressable style={({pressed}) => [styles.messageButton, {backgroundColor: pressed ? "#333333": "#555555", margin: 4}]}
+        onPress={ () => {
 
-            var d = new Date();
-            var h = d.getHours();
-            var m = d.getMinutes();
-            if(h<10) h = "0" + h;
-            if(m<10) m = "0" + m;
-            var date = h + ":" + m;
+          var d = new Date();
+          var h = d.getHours();
+          var m = d.getMinutes();
+          if(h<10) h = "0" + h;
+          if(m<10) m = "0" + m;
+          var date = h + ":" + m;
 
-            socket.emit("message", {conversationId: CONVERSATION_ID, userId: USER_ID, text: message, date : date}); //sended message to server. all devices will now receive the message
-            setMessage('');
-          }}>
-          <View style={{}}>
-            <Text></Text>
-          </View>
-        </Pressable>
+          socket.emit("message", {conversationId: CONVERSATION_ID, userId: USER_ID, text: message, date : date}); //sended message to server. all devices will now receive the message
+          setMessage('');
+        }}>
+        <View style={{}}>
+          <Text></Text>
+        </View>
+      </Pressable>
     </View>
   )
 }

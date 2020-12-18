@@ -6,9 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/fsac.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/fsac.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#555555"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -27,6 +27,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": ""
   }
 }

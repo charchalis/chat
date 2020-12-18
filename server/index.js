@@ -63,17 +63,17 @@ io.on("connection", socket => {
           
           console.log("USER: ", USER);
           
-          socket.emit("authenticated", USER.id);
+          socket.emit("authenticated", USER);
         }
       });
   });
 
-  socket.on('cookiePass', (id) => {
+  socket.on('cookiePass', (user) => {
     console.log("aaah, cookie pass. Right this way suh.");
 
-    USER = {id: id};
+    USER = user;
 
-    socket.emit('authenticated', id);
+    socket.emit('authenticated', USER);
   });
 
   socket.on("gimme user id", () => {
